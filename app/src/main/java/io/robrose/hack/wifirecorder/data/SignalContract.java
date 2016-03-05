@@ -41,6 +41,8 @@ public class SignalContract {
         // Longitude
         public static final String COLUMN_LONG = "longitude";
 
+        public static final String COLUMN_ALT = "altitude";
+
         public static Uri buildSignalUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }

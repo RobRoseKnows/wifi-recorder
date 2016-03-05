@@ -101,8 +101,20 @@ public class MainActivity extends AppCompatActivity
 
     @OnClick(R.id.captureButton)
     private void recordLocation() {
+        // Make sure we can't spam button and get too many results.
         if(!currentlyChecking) {
-            
+            currentlyChecking = true;
+            int permissionCheckLocation = ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION);
+            if(permissionCheckLocation == 0) {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            }
+
+            int permissionCheckWifi = ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.CHANGE_WIFI_STATE);
+            if(permissionCheckWifi == 0) {
+                wifiManager.startScan();
+            }
         }
     }
 
@@ -127,6 +139,9 @@ public class MainActivity extends AppCompatActivity
                 String ssid = resultOn.SSID;
                 int signalStrength = resultOn.level;
                 int signalFreq = resultOn.centerFreq0;
+                double lastLat = mLastLocation.getLatitude();
+                double lastLong = mLastLocation.getLongitude();
+                double lastAlt = mLastLocation.getAltitude();
 
                 String toStringValue = "SSID: " + ssid + " MAC: " + macAddress + " Signal: " +
                         signalStrength + "dBm";
@@ -138,6 +153,9 @@ public class MainActivity extends AppCompatActivity
                 cvs.put(SignalContract.SignalEntry.COLUMN_MAC, macAddress);
                 cvs.put(SignalContract.SignalEntry.COLUMN_STRENGTH, signalStrength);
                 cvs.put(SignalContract.SignalEntry.COLUMN_FREQ, signalFreq);
+                cvs.put(SignalContract.SignalEntry.COLUMN_LAT, lastLat);
+                cvs.put(SignalContract.SignalEntry.COLUMN_LONG, lastLong);
+                cvs.put(SignalContract.SignalEntry.COLUMN_ALT, lastAlt);
 
                 results[i] = cvs;
             }

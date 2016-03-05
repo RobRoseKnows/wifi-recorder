@@ -28,7 +28,8 @@ public class SignalDbHelper extends SQLiteOpenHelper {
                     SignalEntry.COLUMN_STRENGTH + " INTEGER NOT NULL, " +
                     SignalEntry.COLUMN_FREQ + " INTEGER, " +
                     SignalEntry.COLUMN_LAT + " REAL, " +
-                    SignalEntry.COLUMN_LONG + " REAL " +
+                    SignalEntry.COLUMN_LONG + " REAL, " +
+                    SignalEntry.COLUMN_ALT + " REAL " +
                     " );";
 
             sqLiteDatabase.execSQL(SQL_CREATE_SIGNAL_TABLE);
