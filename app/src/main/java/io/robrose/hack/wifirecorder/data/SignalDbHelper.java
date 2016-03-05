@@ -26,7 +26,7 @@ public class SignalDbHelper extends SQLiteOpenHelper {
                     SignalEntry.COLUMN_LOCATION + " TEXT NOT NULL, " +
                     SignalEntry.COLUMN_MAC + " TEXT NOT NULL, " +
                     SignalEntry.COLUMN_STRENGTH + " INTEGER NOT NULL, " +
-                    SignalEntry.COLUMN_FREQ + " INTEGER NOT NULL, " +
+                    SignalEntry.COLUMN_FREQ + " INTEGER, " +
                     SignalEntry.COLUMN_LAT + " REAL, " +
                     SignalEntry.COLUMN_LONG + " REAL " +
                     " );";
