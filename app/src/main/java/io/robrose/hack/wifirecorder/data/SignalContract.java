@@ -41,8 +41,16 @@ public class SignalContract {
         // Longitude
         public static final String COLUMN_LONG = "longitude";
 
+        public static Uri buildSignalUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
         public static Uri buildSignalLocation(String loc) {
             return CONTENT_URI.buildUpon().appendPath(loc).build();
+        }
+
+        public static String getLocationFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
     }
 }
