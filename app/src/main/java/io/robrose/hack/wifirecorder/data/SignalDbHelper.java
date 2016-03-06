@@ -10,7 +10,7 @@ import io.robrose.hack.wifirecorder.data.SignalContract.SignalEntry;
  * Borrowed from: https://github.com/udacity/Sunshine-Version-2/blob/4.23_fix_settings/app/src/main/java/com/example/android/sunshine/app/data/WeatherDbHelper.java
  */
 public class SignalDbHelper extends SQLiteOpenHelper {
-        private static final int DATABASE_VERSION = 1;
+        private static final int DATABASE_VERSION = 3;
 
         static final String DATABASE_NAME = "weather.db";
 
@@ -26,10 +26,7 @@ public class SignalDbHelper extends SQLiteOpenHelper {
                     SignalEntry.COLUMN_LOCATION + " TEXT NOT NULL, " +
                     SignalEntry.COLUMN_MAC + " TEXT NOT NULL, " +
                     SignalEntry.COLUMN_STRENGTH + " INTEGER NOT NULL, " +
-                    SignalEntry.COLUMN_FREQ + " INTEGER, " +
-                    SignalEntry.COLUMN_LAT + " REAL, " +
-                    SignalEntry.COLUMN_LONG + " REAL, " +
-                    SignalEntry.COLUMN_ALT + " REAL " +
+                    SignalEntry.COLUMN_FREQ + " INTEGER " +
                     " );";
 
             sqLiteDatabase.execSQL(SQL_CREATE_SIGNAL_TABLE);

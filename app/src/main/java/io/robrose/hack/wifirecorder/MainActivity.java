@@ -6,35 +6,36 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
-
+import java.io.File;
+import java.io.FileWriter;
 import java.util.List;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.robrose.hack.wifirecorder.data.SignalContract;
+import io.robrose.hack.wifirecorder.data.SignalDbHelper;
 
-public class MainActivity extends AppCompatActivity
-        implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class MainActivity extends AppCompatActivity {
 
     private WifiManager wifiManager;
     private ScanReceiver scanReceiver;
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
     private boolean currentlyChecking = false;
 
     @Bind(R.id.resultsListView) ListView resultsListView;
@@ -46,22 +47,10 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
 
         wifiManager=(WifiManager)getSystemService(Context.WIFI_SERVICE);
         scanReceiver = new ScanReceiver();
 
-    }
-
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
     }
 
     protected void onResume() {
@@ -74,49 +63,45 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // An unresolvable error has occurred and a connection to Google APIs
-        // could not be established. Display an error message, or handle
-        // the failure silently
-
-        // ...
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-        if(permissionCheck == 0) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
     @OnClick(R.id.captureButton) void recordLocation() {
         // Make sure we can't spam button and get too many results.
         if(!currentlyChecking) {
             currentlyChecking = true;
-            int permissionCheckLocation = ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION);
-            if(permissionCheckLocation == 0) {
-                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            }
 
             int permissionCheckWifi = ContextCompat.checkSelfPermission(this,
                     Manifest.permission.CHANGE_WIFI_STATE);
             if(permissionCheckWifi == 0) {
                 wifiManager.startScan();
             }
+        }
+    }
+
+    @OnClick(R.id.exportButton) void exportDB() {
+
+        File dbFile = getDatabasePath("weather.db");
+        SignalDbHelper dbhelper = new SignalDbHelper(getApplicationContext());
+        File exportDir = new File(Environment.getExternalStorageDirectory(), "");
+        if (!exportDir.exists()) {
+            exportDir.mkdirs();
+        }
+
+        File file = new File(exportDir, "apexport.csv");
+        try {
+            file.createNewFile();
+            CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
+            SQLiteDatabase db = dbhelper.getReadableDatabase();
+            Cursor curCSV = db.rawQuery("SELECT * FROM signal", null);
+            csvWrite.writeNext(curCSV.getColumnNames());
+            while (curCSV.moveToNext()) {
+                //Which column you want to exprort
+                String arrStr[] = {curCSV.getString(0), curCSV.getString(1), curCSV.getString(2),
+                        curCSV.getString(3), curCSV.getString(4), curCSV.getString(5)};
+                csvWrite.writeNext(arrStr);
+            }
+            csvWrite.close();
+            curCSV.close();
+        } catch (Exception sqlEx) {
+            Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
         }
     }
 
@@ -140,9 +125,6 @@ public class MainActivity extends AppCompatActivity
                 String macAddress = resultOn.BSSID;
                 String ssid = resultOn.SSID;
                 int signalStrength = resultOn.level;
-                double lastLat = mLastLocation.getLatitude();
-                double lastLong = mLastLocation.getLongitude();
-                double lastAlt = mLastLocation.getAltitude();
 
                 String toStringValue = "SSID: " + ssid + " MAC: " + macAddress + " Signal: " +
                         signalStrength + "dBm";
@@ -153,9 +135,6 @@ public class MainActivity extends AppCompatActivity
                 cvs.put(SignalContract.SignalEntry.COLUMN_SSID, ssid);
                 cvs.put(SignalContract.SignalEntry.COLUMN_MAC, macAddress);
                 cvs.put(SignalContract.SignalEntry.COLUMN_STRENGTH, signalStrength);
-                cvs.put(SignalContract.SignalEntry.COLUMN_LAT, lastLat);
-                cvs.put(SignalContract.SignalEntry.COLUMN_LONG, lastLong);
-                cvs.put(SignalContract.SignalEntry.COLUMN_ALT, lastAlt);
 
                 results[i] = cvs;
             }

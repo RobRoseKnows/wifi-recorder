@@ -26,7 +26,7 @@ public class SignalProvider extends ContentProvider{
             SignalContract.SignalEntry.TABLE_NAME+
                     "." + SignalContract.SignalEntry.COLUMN_LOCATION + " = ? ";
 
-    private Cursor getWeatherByLocationSetting(Uri uri, String[] projection, String sortOrder) {
+    private Cursor getSignalByLocationSetting(Uri uri, String[] projection, String sortOrder) {
         String location = SignalContract.SignalEntry.getLocationFromUri(uri);
 
         String selection = sLocationSelection;
@@ -103,7 +103,7 @@ public class SignalProvider extends ContentProvider{
 
             // "signal/*"
             case SIGNAL_LOCATION: {
-                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
+                retCursor = getSignalByLocationSetting(uri, projection, sortOrder);
                 break;
             }
 
