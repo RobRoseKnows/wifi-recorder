@@ -196,7 +196,7 @@ public class MAC_Address_Signal_Strength
 	
 	public static void execute ()
 	{
-		System.out.println ("Please type the name of the .CSV File, OR the directory of multiple .CSV Files to be processed, or the empty String to use the directory in the config file:");
+		System.out.println ("Please type the name of the .CSV File, OR the directory of the default .CSV File to be processed, or the empty String to use the directory in the config file:");
 		Scanner input = new Scanner (System.in);
 		String fileName = input.nextLine();
 		input.close();
