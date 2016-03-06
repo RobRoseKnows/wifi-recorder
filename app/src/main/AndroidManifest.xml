@@ -19,6 +19,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- THIS IS A VERY VERY IMPORTANT PIECE. STOP FORGETTING IT -->
+        <provider
+            android:authorities="@string/content_authority"
+            android:name=".data.SignalProvider"
+            android:exported="false"
+            android:syncable="true" />
+
     </application>
 
 </manifest>

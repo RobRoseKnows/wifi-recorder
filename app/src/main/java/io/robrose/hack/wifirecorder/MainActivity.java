@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationServices;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.robrose.hack.wifirecorder.data.SignalContract;
 
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -50,10 +53,10 @@ public class MainActivity extends AppCompatActivity
                     .addApi(LocationServices.API)
                     .build();
         }
-        setContentView(R.layout.activity_main);
 
         wifiManager=(WifiManager)getSystemService(Context.WIFI_SERVICE);
         scanReceiver = new ScanReceiver();
+
     }
 
     protected void onStart() {
@@ -99,8 +102,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @OnClick(R.id.captureButton)
-    private void recordLocation() {
+    @OnClick(R.id.captureButton) void recordLocation() {
         // Make sure we can't spam button and get too many results.
         if(!currentlyChecking) {
             currentlyChecking = true;
@@ -138,7 +140,6 @@ public class MainActivity extends AppCompatActivity
                 String macAddress = resultOn.BSSID;
                 String ssid = resultOn.SSID;
                 int signalStrength = resultOn.level;
-                int signalFreq = resultOn.centerFreq0;
                 double lastLat = mLastLocation.getLatitude();
                 double lastLong = mLastLocation.getLongitude();
                 double lastAlt = mLastLocation.getAltitude();
@@ -152,7 +153,6 @@ public class MainActivity extends AppCompatActivity
                 cvs.put(SignalContract.SignalEntry.COLUMN_SSID, ssid);
                 cvs.put(SignalContract.SignalEntry.COLUMN_MAC, macAddress);
                 cvs.put(SignalContract.SignalEntry.COLUMN_STRENGTH, signalStrength);
-                cvs.put(SignalContract.SignalEntry.COLUMN_FREQ, signalFreq);
                 cvs.put(SignalContract.SignalEntry.COLUMN_LAT, lastLat);
                 cvs.put(SignalContract.SignalEntry.COLUMN_LONG, lastLong);
                 cvs.put(SignalContract.SignalEntry.COLUMN_ALT, lastAlt);
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity
 
             resultsListView.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
                     android.R.layout.simple_list_item_1, wifiText));
-            getContentResolver().bulkInsert(SignalContract.BASE_CONTENT_URI, results);
+            getContentResolver().bulkInsert(SignalContract.SignalEntry.CONTENT_URI, results);
             currentlyChecking = false;
         }
     }

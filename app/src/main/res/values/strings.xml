@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WifiRecorder</string>
+    <string name="content_authority">io.robrose.hack.wifirecorder</string>
 </resources>
